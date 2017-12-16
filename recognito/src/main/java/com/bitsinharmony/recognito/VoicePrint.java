@@ -128,4 +128,12 @@ public final class VoicePrint
         return Arrays.toString(features);
     }
     
+	/**
+     * Returns the features.
+     * @return the feature array
+     */
+	
+	public double[] getFeatures() {
+		return features;
+	}
 }

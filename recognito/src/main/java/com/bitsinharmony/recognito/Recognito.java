@@ -212,6 +212,55 @@ public class Recognito<K> {
 
         return createVoicePrint(userKey, audioSample);
     }
+	
+		/**
+     * Add a voiceprint object. 
+     * <p>
+     * Threading : this method is synchronized to prevent inadvertently erasing an existing user key
+     * </p>
+     * @param userKey the user key associated with this voice print
+     * @param voiceSample the voice print object
+     * @return the voice print itself
+     */
+	
+	public synchronized VoicePrint addVoicePrint(K userKey, VoicePrint voicePrint) {
+		synchronized (this) {
+            if (!universalModelWasSetByUser.get()) {
+                if (universalModel == null) {
+                    universalModel = new VoicePrint(voicePrint);
+                } else {
+                    universalModel.merge(voicePrint.getFeatures());
+                }
+            }
+        }
+		store.put(userKey, voicePrint);
+        return voicePrint;
+	}
+
+    /**
+     * Add a voiceprint based on a current feature vector. 
+     * <p>
+     * Threading : this method is synchronized to prevent inadvertently erasing an existing user key
+     * </p>
+     * @param userKey the user key associated with this voice print
+     * @param features the feature array
+     * @return the voice print extracted from the given features
+     */
+	
+	public synchronized VoicePrint addVoicePrint(K userKey, double[] features) {
+		VoicePrint voicePrint = new VoicePrint(features);
+		synchronized (this) {
+            if (!universalModelWasSetByUser.get()) {
+                if (universalModel == null) {
+                    universalModel = new VoicePrint(voicePrint);
+                } else {
+                    universalModel.merge(features);
+                }
+            }
+        }
+		addVoicePrint(userKey, voicePrint);
+		return voicePrint;
+	}
 
     /**
      * Converts the given audio file to an array of doubles with values between -1.0 and 1.0
